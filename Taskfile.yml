@@ -18,9 +18,11 @@ vars:
 
 tasks:
   build:
+    desc: Build image using default platform
     cmds:
       - "{{ .BUILD }} {{ .TAG_VERSION }} -f Dockerfile ."
   all:
+    desc: Build all images using all platforms
     cmds:
       - "{{ .BUILD }} {{ .TAG_VERSION }} {{ .PLATFORMS }} -f Dockerfile ."
 
@@ -36,6 +38,15 @@ tasks:
     vars:
       VERSION:
         sh: curl -sX GET {{ .API_URL }} | jq --raw-output '.tag_name'
+
+  export-reqs:
+    desc: Export the latest app version to VERSION
+    cmds:
+      - printf "%s\n" "neoteroi-mkdocs~={{ .VERSION }}" > requirements.txt
+    vars:
+      VERSION:
+        sh: >-
+            curl -s https://pypi.org/pypi/neoteroi-mkdocs/json | jq -r '.info.version' | ( IFS=".$IFS" ; read a b c && echo $a.$b)
 
   rm:
     desc: Remove the image
@@ -66,8 +77,8 @@ tasks:
         # - 'printf "{{ .COLOR }}* PIP\e[m                %s\n" "{{ .PIP }}"'
         - 'printf "{{ .COLOR }}* PLATFORMS\e[m          %s\n" "{{ .PLATFORMS }}"'
         # - 'printf "{{ .COLOR }}* PORTS\e[m              %s\n" "{{ .PORTS }}"'
-        # - 'printf "{{ .COLOR }}* SOURCE_ORG\e[m         %s\n" "{{ .SOURCE_ORG }}"'
-        # - 'printf "{{ .COLOR }}* SOURCE_REPO\e[m        %s\n" "{{ .SOURCE_REPO }}"'
+        - 'printf "{{ .COLOR }}* SOURCE_ORG\e[m         %s\n" "{{ .SOURCE_ORG }}"'
+        - 'printf "{{ .COLOR }}* SOURCE_REPO\e[m        %s\n" "{{ .SOURCE_REPO }}"'
         # - 'printf "{{ .COLOR }}* TYPE\e[m               %s\n" "{{ .TYPE }}"'
         - 'printf "{{ .COLOR }}* TAG_VERSION\e[m        %s\n" "{{ .TAG_VERSION }}"'
         - 'printf "{{ .COLOR }}* BUILD_ARGS\e[m         %s\n" "{{ .BUILD_ARGS }}"'
@@ -78,6 +89,7 @@ tasks:
       silent: true
   
   default:
+    desc: List all tasks
     cmds:
       - task -a
     silent: true
