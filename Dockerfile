@@ -2,8 +2,8 @@ FROM squidfunk/mkdocs-material
 
 ARG VERSION
 
-LABEL org.opencontainers.image.description Documentation that simply works
-LABEL org.opencontainers.image.version ${VERSION}
+LABEL "org.opencontainers.image.description"="Documentation that simply works"
+LABEL "org.opencontainers.image.version"="${VERSION}"
 
 # Set working directory
 WORKDIR /docs
