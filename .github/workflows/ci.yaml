@@ -1,8 +1,13 @@
 ---
 name: ci
 
-on:
+on:  # yamllint disable-line
+  workflow_dispatch:
   push:
+    paths:
+      - 'Dockerfile'
+      - 'VERSION'
+      - 'task.env'
 
 env:
   REGISTRY_IMAGE: nicholaswilde/mkdocs-material
