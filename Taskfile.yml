@@ -1,0 +1,83 @@
+---
+version: '3'
+
+dotenv: ['task.env']
+
+vars:
+  VERSION:
+    sh: cat VERSION
+  BUILD_DATE:
+    sh: "date -u +%Y-%m-%dT%H%M%S%Z"
+  TAG_VERSION: "{{ .NS }}/{{ .IMAGE_NAME }}:{{ .VERSION }}"
+  CONTAINER: "{{ .CONTAINER_NAME }}-{{ .CONTAINER_INSTANCE }}"
+  BUILD_ARGS: >-
+    --build-arg VERSION={{ .VERSION }}
+    --build-arg BUILD_DATE={{ .BUILD_DATE }}
+  BUILD: "docker buildx build {{ .BUILD_ARGS }} -t"
+  API_URL: "https://api.github.com/repos/{{ .SOURCE_ORG }}/{{ .SOURCE_REPO }}/releases/latest"
+
+tasks:
+  build:
+    cmds:
+      - "{{ .BUILD }} {{ .TAG_VERSION }} -f Dockerfile ."
+  all:
+    cmds:
+      - "{{ .BUILD }} {{ .TAG_VERSION }} {{ .PLATFORMS }} -f Dockerfile ."
+
+  prune:
+    desc: Prune the builder
+    cmds:
+      - "docker builder prune --all -f"
+
+  export:
+    desc: Export the latest app version to VERSION
+    cmds:
+      - printf "%s" "{{ .VERSION }}" > VERSION
+    vars:
+      VERSION:
+        sh: curl -sX GET {{ .API_URL }} | jq --raw-output '.tag_name'
+
+  rm:
+    desc: Remove the image
+    cmds:
+      - "docker rmi -f {{ .TAG_VERSION }}"
+
+  load:
+    desc: Load the release image
+    cmds:
+      - "{{ .BUILD }} {{ .TAG_VERSION }} -f Dockerfile . --load"
+
+  vars:
+      desc: Print all the variables
+      cmds:
+        - "printf 'task: Available variables for this project:\n'"
+        - 'printf "{{ .COLOR }}* BUILD_DATE\e[m         %s\n" "{{ .BUILD_DATE }}"'
+        - 'printf "{{ .COLOR }}* API_URL\e[m            %s\n" "{{ .API_URL }}"'
+        - 'printf "{{ .COLOR }}* CONTAINER\e[m          %s\n" "{{ .CONTAINER }}"'
+        - 'printf "{{ .COLOR }}* CONTAINER_INSTANCE\e[m %s\n" "{{ .CONTAINER_INSTANCE }}"'
+        - 'printf "{{ .COLOR }}* CONTAINER_NAME\e[m     %s\n" "{{ .CONTAINER_NAME }}"'
+        # - 'printf "{{ .COLOR }}* ENV\e[m                %s\n" "{{ .ENV }}"'
+        # - 'printf "{{ .COLOR }}* FILENAME\e[m           %s\n" "{{ .FILENAME }}"'
+        # - 'printf "{{ .COLOR }}* GIT_ROOT\e[m           %s\n" "{{ .GIT_ROOT }}"'
+        - 'printf "{{ .COLOR }}* IMAGE_NAME\e[m         %s\n" "{{ .IMAGE_NAME }}"'
+        # - 'printf "{{ .COLOR }}* LS\e[m                 %s\n" "{{ .LS }}"'
+        - 'printf "{{ .COLOR }}* NS\e[m                 %s\n" "{{ .NS }}"'
+        # - 'printf "{{ .COLOR }}* PACKAGES\e[m           %s\n" "{{ .PACKAGES }}"'
+        # - 'printf "{{ .COLOR }}* PIP\e[m                %s\n" "{{ .PIP }}"'
+        - 'printf "{{ .COLOR }}* PLATFORMS\e[m          %s\n" "{{ .PLATFORMS }}"'
+        # - 'printf "{{ .COLOR }}* PORTS\e[m              %s\n" "{{ .PORTS }}"'
+        # - 'printf "{{ .COLOR }}* SOURCE_ORG\e[m         %s\n" "{{ .SOURCE_ORG }}"'
+        # - 'printf "{{ .COLOR }}* SOURCE_REPO\e[m        %s\n" "{{ .SOURCE_REPO }}"'
+        # - 'printf "{{ .COLOR }}* TYPE\e[m               %s\n" "{{ .TYPE }}"'
+        - 'printf "{{ .COLOR }}* TAG_VERSION\e[m        %s\n" "{{ .TAG_VERSION }}"'
+        - 'printf "{{ .COLOR }}* BUILD_ARGS\e[m         %s\n" "{{ .BUILD_ARGS }}"'
+        - 'printf "{{ .COLOR }}* VERSION\e[m            %s\n" "{{ .VERSION }}"'
+      vars:
+        # Blue
+        COLOR: '\e[1;34m'
+      silent: true
+  
+  default:
+    cmds:
+      - task -a
+    silent: true
