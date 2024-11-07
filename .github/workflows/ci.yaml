@@ -22,6 +22,8 @@ jobs:
         run: |
           platform=${{ matrix.platform }}
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+          VER=$(cat VERSION)
+          echo "VERSION=$VER" >> $GITHUB_ENV
 
       - name: Docker meta
         id: meta
@@ -29,7 +31,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           tags:
-            type=semver,pattern={{version}},value=9.5.44
+            type=semver,pattern={{version}},value=${{ env.VERSION }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -70,6 +72,11 @@ jobs:
     needs:
       - build
     steps:
+      - name: Prepare
+        run: |
+          VER=$(cat VERSION)
+          echo "VERSION=$VER" >> $GITHUB_ENV
+
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
@@ -86,7 +93,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           tags:
-            type=semver,pattern={{version}},value=9.5.44
+            type=semver,pattern={{version}},value=${{ env.VERSION }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
