@@ -16,6 +16,20 @@ Packages included in this image that are not in the base [`squidfunk/mkdocs-mate
 
  - [neoteroi-mkdocs][2]
 
+---
+
+<!-- spellchecker-disable -->
+## :balance_scale: &nbsp; License
+<!-- spellchecker-enable -->
+
+​[​Apache 2.0 License​](../LICENSE)
+
+---
+
+## :pencil:​&nbsp;​Author
+
+​This project was started in 2024 by [​Nicholas Wilde​](https://github.com/nicholaswilde/).
+
 [1]: https://github.com/nicholaswilde/mkdocs-material/pkgs/container/mkdocs-material
 [2]: https://pypi.org/project/neoteroi-mkdocs/ 
 [3]: https://hub.docker.com/r/squidfunk/mkdocs-material
