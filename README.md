@@ -1,4 +1,9 @@
+<!-- markdownlint-disable-next-line no-trailing-punctuation -->
 # mkdocs-material
+
+[![ci](https://img.shields.io/github/actions/workflow/status/nicholaswilde/mkdocs-material/ci.yaml?label=ci&style=for-the-badge&branch=main)](https://github.com/nicholaswilde/mkdocs-material/actions/workflows/ci.yaml)
+[![task](https://img.shields.io/badge/task-enabled-brightgreen?logo=task&logoColor=white&style=for-the-badge)](https://taskfile.dev/)
+
 A repackage of squidfunk/mkdocs-material image that includes neoteroi-mkdocs
 
 Used as a placeholder for for the [ghcr.io image][1].
