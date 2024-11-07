@@ -1,5 +1,5 @@
 # mkdocs-material
-mkdocs-material repo for Docker image
+A repackage of squidfunk/mkdocs-material image that includes neoteroi-mkdocs
 
 Used as a placeholder for for the [ghcr.io image][1].
 
