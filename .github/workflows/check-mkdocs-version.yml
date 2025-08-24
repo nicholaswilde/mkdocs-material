@@ -1,0 +1,56 @@
+name: Check MkDocs Material Version
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  check_version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Read local VERSION file
+        id: local_version
+        run: echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+
+      - name: Get latest MkDocs Material version
+        id: remote_version
+        run: |
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/squidfunk/mkdocs-material/releases/latest | jq -r .tag_name)
+          # Remove 'v' prefix if present
+          echo "VERSION=${LATEST_RELEASE#v}" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
+        run: |
+          LOCAL_VERSION="${{ steps.local_version.outputs.VERSION }}"
+          REMOTE_VERSION="${{ steps.remote_version.outputs.VERSION }}"
+          echo "Local MkDocs Material version: $LOCAL_VERSION"
+          echo "Latest MkDocs Material version: $REMOTE_VERSION"
+          if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ]; then
+            echo "::set-output name=version_mismatch::true"
+            echo "::set-output name=version_to_update_to::$REMOTE_VERSION"
+            echo "Local MkDocs Material version ($LOCAL_VERSION) does not match the latest remote version ($REMOTE_VERSION)."
+          else
+            echo "::set-output name=version_mismatch::false"
+            echo "Local MkDocs Material version matches the latest remote version."
+          fi
+
+      - name: Create Pull Request if versions differ
+        if: steps.compare.outputs.version_mismatch == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: Update MkDocs Material to ${{ steps.compare.outputs.version_to_update_to }}"
+          title: "chore: Update MkDocs Material to ${{ steps.compare.outputs.version_to_update_to }}"
+          body: |
+            Bumps the MkDocs Material version in `VERSION` file to ${{ steps.compare.outputs.version_to_update_to }}.
+          branch: "update-mkdocs-material-${{ steps.compare.outputs.version_to_update_to }}"
+          base: main
+          delete-branch: true
