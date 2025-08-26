@@ -44,7 +44,7 @@ jobs:
 
       - name: Create Pull Request if versions differ
         if: steps.compare.outputs.version_mismatch == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: Update MkDocs Material to ${{ steps.compare.outputs.version_to_update_to }}"
