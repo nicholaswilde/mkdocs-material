@@ -16,6 +16,9 @@ Packages included in this image that are not in the base [`squidfunk/mkdocs-mate
 
  - [neoteroi-mkdocs][2]
 
+>[!WARNING]
+>See [this blog post](https://squidfunk.github.io/mkdocs-material/blog/2025/11/11/insiders-now-free-for-everyone/) about Material for MkDocs entering maintenance mode and the team concentrating their efforts on [Zensical](https://zensical.org/)
+
 ---
 
 <!-- spellchecker-disable -->
